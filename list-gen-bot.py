@@ -12,7 +12,7 @@ import urllib3      # for ignoring the warnings related to making HTTP requests
 # =============================
 
 # the number of pages this bot will go through before stopping
-PAGES_TO_GO_THROUGH = 1
+PAGES_TO_GO_THROUGH = 25
 
 # the title of the page that stores the last page this bot has seen 
 # and where to pick up on a later execution
@@ -103,8 +103,7 @@ class ListGenBot:
         Records the last page the bot saw on a certain Mediawiki page.
         '''
         # get the pages to run on
-        start_page_title = "Grassroot"
-        # start_page_title = self._get_page_start()
+        start_page_title = self._get_page_start()
         last_page_seen = ""
         pages_to_run = self._pages_from(start_page_title)
 
@@ -152,11 +151,14 @@ class ListGenBot:
         
         # render lists
         page = self._get_page(page)
-        page.text = list_render_template.sub(
+        new_text = list_render_template.sub(
             repl=self._render_list,
             string=page.text
         )
-        page.save('Render lists')
+        page.text = new_text
+
+        if page.text != new_text:
+            page.save('Render lists')
     
     def _render_list(self, m: 'regex match object') -> str:
         beginning_text, start, list_name, ending_text, end = m.groups()
